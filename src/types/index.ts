@@ -1,6 +1,6 @@
 export enum UserRole {
   FREE = 'free',
-  ADMIN = 'paid',
+  PAID = 'paid',
 }
 
 export enum ETaskStatus {

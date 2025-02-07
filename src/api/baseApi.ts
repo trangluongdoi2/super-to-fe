@@ -20,58 +20,63 @@ export class BaseApi implements IApi {
       };
     }
     const { data } = await axiosInstance.get(url, opts);
-    return {
-      data: data.data,
-      message: data.message,
-      statusCode: data.statusCode
-    };
+    return data;
+    // return {
+    //   data: data.data,
+    //   message: data.message,
+    //   statusCode: data.statusCode
+    // };
   }
 
   public async post<T>(
     url: string,
     input?: object,
     options?: object
-  ): Promise<TResponse<T>> {
+  ): Promise<T> {
     const { data } = await axiosInstance.post(url, input, options);
-    return {
-      data: data.data,
-      message: data.message,
-      statusCode: data.statusCode
-    };
+    return data;
+    // return {
+    //   data: data.data,
+    //   message: data.message,
+    //   statusCode: data.statusCode
+    // };
   }
 
   public async patch<T>(
     url: string,
     input?: object,
     options?: object
-  ): Promise<TResponse<T>> {
+  ): Promise<T> {
     const { data } = await axiosInstance.patch(url, input, options);
-    return {
-      data: data.data,
-      message: data.message,
-      statusCode: data.statusCode
-    };
+    return data;
+    // return {
+    //   data: data.data,
+    //   message: data.message,
+    //   statusCode: data.statusCode
+    // };
   }
 
   public async put<T>(
     url: string,
     input?: object,
     options?: object
-  ): Promise<TResponse<T>> {
+  ): Promise<T> {
     const { data } = await axiosInstance.put(url, input, options);
-    return {
-      data: data.data,
-      message: data.message,
-      statusCode: data.statusCode
-    };
+    return data;
+    // return {
+    //   data: data.data,
+    //   message: data.message,
+    //   statusCode: data.statusCode
+    // };
   }
 
-  public async delete<T>(url: string, input?: object): Promise<TResponse<T>> {
+  public async delete<T>(url: string, input?: object): Promise<T> {
     const { data } = await axiosInstance.delete(url, input);
-    return {
-      data: data.data,
-      message: data.message,
-      statusCode: data.statusCode
-    };
+    return data;
+    // return {
+    //   data: data.data,
+    //   message: data.message,
+    //   statusCode: data.statusCode
+    // };
   }
 }

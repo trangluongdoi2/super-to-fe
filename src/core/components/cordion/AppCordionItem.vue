@@ -4,7 +4,7 @@
       class="w-full text-left p-4 focus:outline-none"
       :class="{ 'text-blue-500': open }"
     >
-      {{ item.title }}
+      {{ item?.title }}
     </button>
     <slot name="icon" :item="item">
       <div class="p-4">
@@ -21,16 +21,18 @@
     :duration="100"
   >
   <div v-show="open" class="p-4" ref="contentRef">
-    <TaskDetails :item="item" />
+    <div ref="taskDetailsRef">
+      <slot name="content" :item="item" />
+    </div>
   </div>
 </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, PropType } from 'vue';
+import { ref, onMounted, onBeforeUnmount, PropType, nextTick } from 'vue';
+import { ITask } from '@/types/task';
 import AppIcon from '@/core/components/AppIcon.vue';
 import TaskDetails from '@/modules/tasks/components/TaskDetails.vue';
-import { ITask } from '@/types/task';
 
 defineProps({
   item: {
@@ -42,40 +44,39 @@ defineProps({
     required: true,
   },
 });
-
 const open = ref<boolean>(false);
-const scrollHeight = ref<number>(0);
 const contentRef = ref<HTMLElement>();
+const taskDetailsRef = ref<HTMLElement>();
+
 let resizeObserver: ResizeObserver;
 
 const toggle = () => {
   open.value = !open.value;
 }
 
-function enter(el: HTMLElement) {
+const enter = (el: HTMLElement) => {
   contentRef.value.style.height = el.scrollHeight + 'px';
 }
 
-function leave(el: HTMLElement) {
+const leave = (el: HTMLElement) => {
   contentRef.value.style.height = '0';
 }
 
 onMounted(() => {
-  if (contentRef.value) {
-    scrollHeight.value = contentRef.value.scrollHeight;
-    resizeObserver = new ResizeObserver(() => {
-      console.log('resizeObserver');
+  if (taskDetailsRef.value) {
+    resizeObserver = new ResizeObserver(async () => {
+      await nextTick();
       if (open.value && contentRef.value) {
         contentRef.value.style.height = contentRef.value.scrollHeight + 'px';
       }
     });
-    resizeObserver.observe(contentRef.value);
+    resizeObserver.observe(taskDetailsRef.value);
   }
 });
 
 onBeforeUnmount(() => {
-  if (resizeObserver && contentRef.value) {
-    resizeObserver.unobserve(contentRef.value);
+  if (resizeObserver && taskDetailsRef.value) {
+    resizeObserver.unobserve(taskDetailsRef.value);
   }
 });
 

@@ -21,7 +21,7 @@ export interface IDataResponse<T> {
 }
 
 export interface TResponse<T> {
-  data: IDataResponse<T>
+  data: T
   statusCode: HttpStatusCode
   message: string
 }

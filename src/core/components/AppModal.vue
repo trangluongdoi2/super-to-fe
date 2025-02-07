@@ -1,17 +1,10 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content flex flex-col">
-      <!-- <slot name="header">
-        <div class="modal-header h-[40px] flex item-center justify-between">
-          <h3>{{ title }}</h3>
-          <button class="close-button" @click="closeModal">X</button>
-        </div>
-      </slot> -->
       <div class="header w-full p-2" v-if="!hiddenHeader">
         <slot name="header">
           <div class="flex items-center justify-between">
-            <h3>{{ title }}</h3>
-            <!-- <button class="close-button" @click="closeModal">X</button> -->
+            <h3 v-if="title" class="text-2xl font-bold">{{ title }}</h3>
           </div>
         </slot>
       </div>
@@ -20,9 +13,9 @@
       </div>
       <div class="footer w-full p-2" v-if="!hiddenFooter">
         <slot name="footer">
-          <div v-if="!hiddenFooter" class="modal-footer h-[40px] flex item-center justify-end gap-x-2">
-            <button class="close-button" @click="closeModal">Close</button>
-            <button class="close-button" @click="$emit('ok')">Ok</button>
+          <div class="modal-footer h-[40px] flex item-center justify-end gap-x-2">
+            <button class="w-[80px] h-[40px] p-2 bg-accent-gray text-white rounded-md font-bold" @click="closeModal">Close</button>
+            <button class="w-[80px] h-[40px] p-2 bg-accent-gray text-white rounded-md font-bold" @click="$emit('ok')">Ok</button>
           </div>
         </slot>
       </div>
@@ -34,7 +27,15 @@
 import { ref } from 'vue';
 
 defineProps({
+  title: {
+    type: String,
+    default: '',
+  },
   hiddenFooter: {
+    type: Boolean,
+    default: false,
+  },
+  hiddenHeader: {
     type: Boolean,
     default: false,
   },
@@ -72,21 +73,11 @@ defineExpose({
 }
 
 .modal-content {
+  padding: 8px;
   background: white;
-  padding: 20px;
   border-radius: 8px;
   position: relative;
   width: 80%;
   max-width: 1000px;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
 }
 </style>

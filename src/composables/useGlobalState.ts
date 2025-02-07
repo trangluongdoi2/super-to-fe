@@ -5,10 +5,10 @@ import { UserRole } from "@/types";
 export const useGlobalState = () => {
   const route = useRoute();
   const userRole = computed(() => {
-    if (![UserRole.FREE, UserRole.ADMIN].includes(route.query.role as UserRole)) {
+    if (![UserRole.FREE, UserRole.PAID].includes(route.query.userRole as UserRole)) {
       return UserRole.FREE;
     }
-    return route.query.role as UserRole;
+    return route.query.userRole as UserRole;
   });
 
   return {

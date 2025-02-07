@@ -14,19 +14,27 @@
       <h1>No tasks found</h1>
     </div>
     <AppCordion :items="items" >
-      <template v-slot:content="{ item }">
-        <TaskDetails :item="item" />
+      <template v-slot:item="{ item }">
+        <TaskDetails
+          :item="item"
+
+          @delete="openDeleteTaskModal"
+          @edit="onEditTask"
+        />
       </template>
     </AppCordion>
   </div>
-  <AppModal ref="createTaskModalEl" @ok="openTaskCreateModal">
-    <template v-slot:header>
-      <h3>Create Task</h3>
-    </template>
+  <AppModal :title="'Create Task'" ref="createTaskModalEl" @ok="onCreateTask">
     <template v-slot:content>
-      <TaskForm @change="updateTaskCreate" :hiddenFooter="true" />
+      <TaskForm @change="onChangeTask" :hiddenFooter="true" />
     </template>
   </AppModal>
+  <AppModal :title="'Delete Task'" ref="deleteTaskModalEl" @ok="onDeleteTask">
+    <template v-slot:content>
+      <h1>Are you sure you want to delete this task?</h1>
+    </template>
+  </AppModal>
+  <AppToast />
 </template>
 
 <script setup lang="ts">
@@ -38,47 +46,71 @@ import AppCordion from '@/core/components/cordion/AppCordion.vue';
 import AppModal from '@/core/components/AppModal.vue';
 import TaskForm from '@/modules/tasks/components/TaskForm.vue';
 import TaskDetails from '@/modules/tasks/components/TaskDetails.vue';
+import AppToast from '@/core/components/AppToast.vue';
+import { useToastStore } from '@/store/useToastStore';
 
-// const items = ref<ITask[]>([]);
-const createTaskModalEl = ref<InstanceType<typeof AppModal>>();
 const { userRole } = useGlobalState();
+const toastStore = useToastStore();
 
-const currentTask = ref<ITask | null>(null);
+const items = ref<ITask[]>([]);
+const createTaskModalEl = ref<InstanceType<typeof AppModal>>();
+const deleteTaskModalEl = ref<InstanceType<typeof AppModal>>();
 const createTask = ref<ITask | null>(null);
+const selectedTask = ref<ITask | null>(null);
 
-const items = [
-  {
-    title: 'Task 1',
-    description: 'Description 1',
-    status: 'Status 1',
-  },
-  {
-    title: 'Task 2',
-    description: 'Description 2',
-    status: 'Status 2',
-  },
-  {
-    title: 'Task 3',
-    description: 'Description 3',
-    status: 'Status 3',
-  },
-]
+const onCreateTask = async () => {
+  try {
+    const newTask = await TaskApi.createTask({ userRole: userRole.value, task: createTask.value });
+    console.log(newTask, '==> newTask');
+    items.value.push(newTask);
+    toastStore.success({ text: 'Task created successfully' });
+    createTaskModalEl.value?.closeModal();
+  } catch (error) {
+    console.error(error);
+    toastStore.error({ text: 'Create task failed' });
+  }
+}
+
+const onDeleteTask = async () => {
+  try {
+    await TaskApi.deleteTask(selectedTask.value?.id);
+    items.value = items.value.filter(item => item.id !== selectedTask.value?.id);
+    toastStore.success({ text: 'Task deleted successfully' });
+    selectedTask.value = null;
+    deleteTaskModalEl.value?.closeModal();
+  } catch (error) { 
+    console.error(error);
+    toastStore.error({ text: 'Delete task failed' });
+  }
+}
+
+const onEditTask = async (task: ITask) => {
+  try {
+    const res = await TaskApi.updateTask({ userRole: userRole.value, task: task });
+    items.value = items.value.map(item => item.id === task.id ? { ...item, ...res } : item);
+    toastStore.success({ text: 'Task updated successfully' });
+  } catch (error) {
+    console.error(error);
+    toastStore.error({ text: 'Task updated failed' });
+  }
+}
 
 const openTaskCreateModal = async () => {
   createTaskModalEl.value?.openModal();
 }
 
-const updateTaskCreate = async (task: ITask) => {
-  createTask.value = task;
-  // await TaskApi.createTask(task);
+const openDeleteTaskModal = async (task: ITask) => {
+  selectedTask.value = task;
+  deleteTaskModalEl.value?.openModal();
 }
 
-const updateTaskEdit = async (task: ITask) => {
-  currentTask.value = task;
+const onChangeTask = async (task: ITask) => {
+  createTask.value = task;
 }
 
 onBeforeMount(async () => {
-  // items.value = await TaskApi.getAllTasks({ userRole: userRole.value });
+  items.value = await TaskApi.getAllTasks({ userRole: userRole.value });
+  console.log(items.value, '==> getAllTasks');
 });
 
 </script>

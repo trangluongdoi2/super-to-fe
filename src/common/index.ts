@@ -10,3 +10,15 @@ export function isEqual<T>(a: T, b: T): boolean {
   }
   return a === b;
 }
+
+export function camelize(string: string): string {
+  return string
+    .replace(/[-_]+(.)?/g, (match, character): string => {
+      return character ? ' ' + character.toUpperCase() : '';
+    })
+    .replace(/^\w/, (c) => c.toUpperCase());
+}
+
+export function capitalizeWords(str: string): string {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}

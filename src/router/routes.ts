@@ -1,6 +1,6 @@
-import PageNotFound from '@/router/PageNotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import EmptyRouterView from './EmptyRouterView.vue';
+import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 
 export const routes: any[] = [
   {
@@ -8,7 +8,18 @@ export const routes: any[] = [
     path: '/',
     component: EmptyRouterView,
     redirect: () => {
-      return { name: 'main' };
+      return { name: 'main', query: { userRole: 'free' } };
+    },
+    beforeEnter: (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
+      if (!to.query.userRole) {
+        next({ ...to, query: { ...to.query, userRole: 'free' } });
+      } else {
+        next();
+      }
     },
     children: [
       {
@@ -17,12 +28,5 @@ export const routes: any[] = [
         component: Dashboard,
       },
     ],
-  },
-  {
-    name: 'index',
-    path: '/',
-    redirect: () => {
-      return { name: 'app' };
-    },
   },
 ];
